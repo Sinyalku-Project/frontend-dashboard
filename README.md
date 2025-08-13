@@ -50,8 +50,8 @@ Dashboard/
 
 ### 1️⃣ Clone the Repository
 ```bash
-git clone https://github.com/yourusername/sinyalku-dashboard.git
-cd dashboard
+git clone https://github.com/Sinyalku-Project/frontend-dashboard.git
+cd frontend-dashboard
 ```
 
 ### 2️⃣ Install Dependencies
