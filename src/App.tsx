@@ -23,20 +23,35 @@ const HARDCODED_COUNTRY_BBOX: Record<string, [number, number, number, number]> =
 
 // Map signal strength to exact spectrum color
 function getSpectrumColor(signal: number) {
-  // Warna merah muda (low signal)
-  const lowSignalColor = [255, 0, 0]; 
-  // Warna hijau muda (high signal)
-  const highSignalColor = [0, 0, 255]; 
+  // Daftar warna RGB untuk setiap level
+  const colors = [
+    [255, 0, 0],     // merah (low signal)
+    [255, 165, 0],   // oranye
+    [255, 255, 0],   // kuning
+    [0, 128, 0],     // hijau
+    [0, 0, 255]      // biru (strong signal)
+  ];
 
-  // Normalisasi signal: -110 dBm = 0, -84 dBm = 1
   const minSignal = -110;
   const maxSignal = -84;
-  let ratio = (signal - minSignal) / (maxSignal - minSignal);
-  ratio = Math.max(0, Math.min(1, ratio)); // clamp ke [0..1]
 
-  const r = Math.round(lowSignalColor[0] + ratio * (highSignalColor[0] - lowSignalColor[0]));
-  const g = Math.round(lowSignalColor[1] + ratio * (highSignalColor[1] - lowSignalColor[1]));
-  const b = Math.round(lowSignalColor[2] + ratio * (highSignalColor[2] - lowSignalColor[2]));
+  // Normalisasi ke 0..1
+  let ratio = (signal - minSignal) / (maxSignal - minSignal);
+  ratio = Math.max(0, Math.min(1, ratio));
+
+  // Bagi jadi 4 segmen
+  const segments = colors.length - 1;
+  const seg = Math.floor(ratio * segments);
+  const segRatio = (ratio - seg / segments) * segments;
+
+  // Ambil warna awal & akhir segmen
+  const startColor = colors[seg];
+  const endColor = colors[Math.min(seg + 1, colors.length - 1)];
+
+  // Interpolasi linear antara warna awal & akhir
+  const r = Math.round(startColor[0] + segRatio * (endColor[0] - startColor[0]));
+  const g = Math.round(startColor[1] + segRatio * (endColor[1] - startColor[1]));
+  const b = Math.round(startColor[2] + segRatio * (endColor[2] - startColor[2]));
 
   return `rgb(${r}, ${g}, ${b})`;
 }
@@ -45,7 +60,7 @@ const SpectrumBar: React.FC<{ avg: number | null }> = ({ avg }) => {
   return (
     <div style={{ marginTop: 6 }}>
       <div style={{
-        background: "linear-gradient(to right, red, green, blue)",
+        background: "linear-gradient(to right, red, orange, yellow, green, blue)",
         height: 14,
         borderRadius: 7,
         position: "relative"
@@ -334,7 +349,7 @@ export default function App(): JSX.Element {
           blur: 10,
           minOpacity: 0.8,
           max: 1,
-          gradient: { 0.0: "red", 0.5: "green", 1.0: "blue" }
+          gradient: { 0.0: "red", 0.35: "orange", 0.5: "yellow", 0.65: "green", 1.0: "blue" }
         });
         hl.addTo(mapRef.current!);
         heatLayerRef.current = hl;
