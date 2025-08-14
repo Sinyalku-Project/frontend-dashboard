@@ -15,7 +15,8 @@ interface SignalReading {
   country?: string;
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL as string;
+// const API_BASE_URL = import.meta.env.VITE_API_BASE_URL as string;
+const API_BASE_URL = "https://backend-api-x0h2.onrender.com";
 
 // Dynamic country bbox store
 const HARDCODED_COUNTRY_BBOX: Record<string, [number, number, number, number]> = {};
@@ -308,8 +309,8 @@ export default function App(): JSX.Element {
         const minSignal = -110;
         const maxSignal = -84;
         const heatLayerData = filteredData.map(pt => {
-          // Normalize signal_strength to [0..1] where -110 = 0, -84 = 1
-          const intensity = (pt.signal_strength - minSignal) / (maxSignal - minSignal); 
+          // Normalize signal_strength to [0..1] where -84 = 0, -110 = 1
+          const intensity = 1- (pt.signal_strength - minSignal) / (maxSignal - minSignal); 
           return [pt.latitude, pt.longitude, intensity] as [number, number, number];
         });
         const hl = heatLayerFactory(heatLayerData, {
