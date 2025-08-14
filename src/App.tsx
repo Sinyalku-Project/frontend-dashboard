@@ -24,9 +24,9 @@ const HARDCODED_COUNTRY_BBOX: Record<string, [number, number, number, number]> =
 // Map signal strength to exact spectrum color
 function getSpectrumColor(signal: number) {
   // Warna merah muda (low signal)
-  const lowSignalColor = [255, 182, 193]; 
+  const lowSignalColor = [255, 0, 0]; 
   // Warna hijau muda (high signal)
-  const highSignalColor = [144, 238, 144]; 
+  const highSignalColor = [0, 0, 255]; 
 
   // Normalisasi signal: -110 dBm = 0, -84 dBm = 1
   const minSignal = -110;
@@ -45,7 +45,7 @@ const SpectrumBar: React.FC<{ avg: number | null }> = ({ avg }) => {
   return (
     <div style={{ marginTop: 6 }}>
       <div style={{
-        background: "linear-gradient(to right, red, yellow, green)",
+        background: "linear-gradient(to right, red, green, blue)",
         height: 14,
         borderRadius: 7,
         position: "relative"
@@ -334,7 +334,7 @@ export default function App(): JSX.Element {
           blur: 10,
           minOpacity: 0.8,
           max: 1,
-          gradient: { 0.0: "red", 0.35: "orange", 0.5: "yellow", 0.65: "lime", 1.0: "green" }
+          gradient: { 0.0: "red", 0.5: "green", 1.0: "blue" }
         });
         hl.addTo(mapRef.current!);
         heatLayerRef.current = hl;
