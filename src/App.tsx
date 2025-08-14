@@ -23,21 +23,22 @@ const HARDCODED_COUNTRY_BBOX: Record<string, [number, number, number, number]> =
 
 // Map signal strength to exact spectrum color
 function getSpectrumColor(signal: number) {
+  // Warna merah muda (low signal)
+  const lowSignalColor = [255, 182, 193]; 
+  // Warna hijau muda (high signal)
+  const highSignalColor = [144, 238, 144]; 
+
+  // Normalisasi signal: -110 dBm = 0, -84 dBm = 1
   const minSignal = -110;
   const maxSignal = -84;
-  let t = (signal - minSignal) / (maxSignal - minSignal);
-  t = Math.max(0, Math.min(1, t));
+  let ratio = (signal - minSignal) / (maxSignal - minSignal);
+  ratio = Math.max(0, Math.min(1, ratio)); // clamp ke [0..1]
 
-  const start = { r: 255, g: 0, b: 0 };
-  const end = { r: 4, g: 99, b: 7 };     
+  const r = Math.round(lowSignalColor[0] + ratio * (highSignalColor[0] - lowSignalColor[0]));
+  const g = Math.round(lowSignalColor[1] + ratio * (highSignalColor[1] - lowSignalColor[1]));
+  const b = Math.round(lowSignalColor[2] + ratio * (highSignalColor[2] - lowSignalColor[2]));
 
-  const lerp = (startVal: number, endVal: number, t: number) =>
-    Math.round(startVal + (endVal - startVal) * t);
-
-  const r = lerp(start.r, end.r, t);
-  const g = lerp(start.g, end.g, t);
-  const b = lerp(start.b, end.b, t);
-  return `rgb(${r},${g},${b})`;
+  return `rgb(${r}, ${g}, ${b})`;
 }
 
 const SpectrumBar: React.FC<{ avg: number | null }> = ({ avg }) => {
@@ -287,10 +288,24 @@ export default function App(): JSX.Element {
       .catch(() => {});
   }, []);
 
-  const filteredData = useMemo(() => heatData.filter(p =>
-    (selectedCountry === "All Countries" || p.country === selectedCountry) &&
-    (!selectedOperator || p.operator === selectedOperator)
-  ), [heatData, selectedCountry, selectedOperator]);
+  const filteredData = useMemo(() => {
+    const latestMap = new Map<string, SignalReading>();
+
+    heatData.forEach(p => {
+      const key = `${p.latitude.toFixed(6)},${p.longitude.toFixed(6)}`; // bundarkan agar tidak beda-beda tipis
+      const existing = latestMap.get(key);
+      if (!existing || p.id > existing.id) {
+        latestMap.set(key, p);
+      }
+    });
+
+    // Filter berdasarkan operator dan negara
+    return Array.from(latestMap.values()).filter(p =>
+      (selectedCountry === "All Countries" || p.country === selectedCountry) &&
+      (!selectedOperator || p.operator === selectedOperator)
+    );
+  }, [heatData, selectedCountry, selectedOperator]);
+
 
   // Rendering Layer depending on mode
   useEffect(() => {
