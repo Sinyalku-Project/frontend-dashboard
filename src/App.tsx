@@ -324,8 +324,8 @@ export default function App(): JSX.Element {
         const minSignal = -110;
         const maxSignal = -84;
         const heatLayerData = filteredData.map(pt => {
-          // Normalize signal_strength to [0..1] where -84 = 0, -110 = 1
-          const intensity = 1 - (pt.signal_strength - minSignal) / (maxSignal - minSignal); 
+          // Normalize signal_strength to [0..1] where -110 = 0, -84 = 1
+          const intensity = (pt.signal_strength - minSignal) / (maxSignal - minSignal); 
           return [pt.latitude, pt.longitude, intensity] as [number, number, number];
         });
         const hl = heatLayerFactory(heatLayerData, {
@@ -333,7 +333,7 @@ export default function App(): JSX.Element {
           blur: 10,
           minOpacity: 0.8,
           max: 1,
-          gradient: { 0.0: "green", 0.5: "yellow", 1.0: "red" }
+          gradient: { 0.0: "red", 0.5: "yellow", 1.0: "green" }
         });
         hl.addTo(mapRef.current!);
         heatLayerRef.current = hl;
