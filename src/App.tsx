@@ -334,7 +334,7 @@ export default function App(): JSX.Element {
           blur: 10,
           minOpacity: 0.8,
           max: 1,
-          gradient: { 0.0: "red", 0.5: "yellow", 1.0: "green" }
+          gradient: { 0.0: "red", 0.35: "orange", 0.5: "yellow", 0.65: "lime", 1.0: "green" }
         });
         hl.addTo(mapRef.current!);
         heatLayerRef.current = hl;
