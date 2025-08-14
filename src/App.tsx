@@ -292,7 +292,7 @@ export default function App(): JSX.Element {
     const latestMap = new Map<string, SignalReading>();
 
     heatData.forEach(p => {
-      const key = `${p.latitude.toFixed(6)},${p.longitude.toFixed(6)}`; // bundarkan agar tidak beda-beda tipis
+      const key = `${p.latitude.toFixed(3)},${p.longitude.toFixed(3)}`; // bundarkan agar tidak beda-beda tipis
       const existing = latestMap.get(key);
       if (!existing || p.id > existing.id) {
         latestMap.set(key, p);
@@ -326,6 +326,7 @@ export default function App(): JSX.Element {
         const heatLayerData = filteredData.map(pt => {
           // Normalize signal_strength to [0..1] where -110 = 0, -84 = 1
           const intensity = (pt.signal_strength - minSignal) / (maxSignal - minSignal); 
+          console.log(`Heat Layer Data: ${pt.latitude}, ${pt.longitude}, ${pt.signal_strength} , ${intensity}`);
           return [pt.latitude, pt.longitude, intensity] as [number, number, number];
         });
         const hl = heatLayerFactory(heatLayerData, {
